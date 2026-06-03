@@ -22,6 +22,8 @@ class person {
     String destination;
     String phone;
     int age;
+    String travelDate;
+    String returnDate;
     String issueDate;
 
     person() {
@@ -40,6 +42,8 @@ class transport extends person {
         System.out.println("PHONE NUMBER : " + phone);
         System.out.println("SOURCE : " + source);
         System.out.println("DESIINATION : " + destination);
+        System.out.println("TRAVEL DATE : " + travelDate);
+        System.out.println("RETURN DATE : " + returnDate);
         System.out.println();
     }
 }
@@ -69,6 +73,8 @@ class airline extends payment {
         System.out.println("PHONE NUMBER : " + phone);
         System.out.println("SOURCE : " + source);
         System.out.println("DESIINATION : " + destination);
+        System.out.println("TRAVEL DATE : " + travelDate);
+        System.out.println("RETURN DATE : " + returnDate);
         System.out.println("AIRLINE : " + air);
         System.out.println("DATE OF PRINT : " + issueDate + RESET);
         System.out.println("\n\n");
@@ -93,6 +99,8 @@ class railway extends payment {
         System.out.println("PHONE NUMBER : " + phone);
         System.out.println("SOURCE : " + source);
         System.out.println("DESIINATION : " + destination);
+        System.out.println("TRAVEL DATE : " + travelDate);
+        System.out.println("RETURN DATE : " + returnDate);
         System.out.println("TRAIN : " + rail);
         System.out.println("DATE OF PRINT : " + issueDate + RESET);
         System.out.println("\n\n");
@@ -117,6 +125,8 @@ class bus extends payment {
         System.out.println("PHONE NUMBER : " + phone);
         System.out.println("SOURCE : " + source);
         System.out.println("DESIINATION : " + destination);
+        System.out.println("TRAVEL DATE : " + travelDate);
+        System.out.println("RETURN DATE : " + returnDate);
         System.out.println("BUS : " + bus_ID);
         System.out.println("DATE OF PRINT : " + issueDate + RESET);
         System.out.println("\n\n");
@@ -325,6 +335,147 @@ class VectorIconComponent extends JComponent {
     }
 }
 
+class ModernDatePicker extends JDialog {
+    private String selectedDate = "";
+    private int month, year;
+    private JLabel monthLabel;
+    private JPanel daysPanel;
+    private JButton[] dayButtons = new JButton[42];
+
+    private static final Color BG_COLOR = new Color(24, 24, 27);
+    private static final Color CARD_COLOR = new Color(39, 39, 42);
+    private static final Color TEXT_COLOR = new Color(244, 244, 245);
+    private static final Color ACCENT_COLOR = new Color(16, 185, 129);
+    private static final Color MUTED_COLOR = new Color(161, 161, 170);
+
+    public ModernDatePicker(JFrame parent) {
+        super(parent, "Select Travel Date", true);
+        setSize(340, 360);
+        setLocationRelativeTo(parent);
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(BG_COLOR);
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        month = cal.get(java.util.Calendar.MONTH);
+        year = cal.get(java.util.Calendar.YEAR);
+
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(CARD_COLOR);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        JButton btnPrev = createNavButton("<");
+        btnPrev.addActionListener(e -> {
+            month--;
+            updateCalendar();
+        });
+        headerPanel.add(btnPrev, BorderLayout.WEST);
+
+        monthLabel = new JLabel("", JLabel.CENTER);
+        monthLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        monthLabel.setForeground(TEXT_COLOR);
+        headerPanel.add(monthLabel, BorderLayout.CENTER);
+
+        JButton btnNext = createNavButton(">");
+        btnNext.addActionListener(e -> {
+            month++;
+            updateCalendar();
+        });
+        headerPanel.add(btnNext, BorderLayout.EAST);
+
+        add(headerPanel, BorderLayout.NORTH);
+
+        daysPanel = new JPanel(new GridLayout(7, 7, 4, 4));
+        daysPanel.setBackground(BG_COLOR);
+        daysPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        String[] days = { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" };
+        for (String d : days) {
+            JLabel lbl = new JLabel(d, JLabel.CENTER);
+            lbl.setForeground(MUTED_COLOR);
+            lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            daysPanel.add(lbl);
+        }
+
+        for (int i = 0; i < 42; i++) {
+            dayButtons[i] = new JButton();
+            dayButtons[i].setFocusPainted(false);
+            dayButtons[i].setBackground(BG_COLOR);
+            dayButtons[i].setForeground(Color.BLACK);
+            dayButtons[i].setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            dayButtons[i].setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            dayButtons[i].setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            final int index = i;
+            dayButtons[i].addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    if (dayButtons[index].isEnabled() && !dayButtons[index].getText().isEmpty()) {
+                        dayButtons[index].setBackground(CARD_COLOR);
+                    }
+                }
+
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    if (dayButtons[index].isEnabled() && !dayButtons[index].getText().isEmpty()) {
+                        dayButtons[index].setBackground(BG_COLOR);
+                    }
+                }
+            });
+
+            dayButtons[i].addActionListener(e -> {
+                if (!dayButtons[index].getText().isEmpty()) {
+                    java.util.Calendar c = java.util.Calendar.getInstance();
+                    c.set(year, month, Integer.parseInt(dayButtons[index].getText()));
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd-MM-yyyy");
+                    selectedDate = sdf.format(c.getTime());
+                    dispose();
+                }
+            });
+            daysPanel.add(dayButtons[i]);
+        }
+        add(daysPanel, BorderLayout.CENTER);
+
+        updateCalendar();
+    }
+
+    private JButton createNavButton(String text) {
+        JButton b = new JButton(text);
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+        b.setBackground(CARD_COLOR);
+        b.setForeground(ACCENT_COLOR);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return b;
+    }
+
+    private void updateCalendar() {
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(year, month, 1);
+        year = cal.get(java.util.Calendar.YEAR);
+        month = cal.get(java.util.Calendar.MONTH);
+
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMMM yyyy");
+        monthLabel.setText(sdf.format(cal.getTime()));
+
+        int startDay = cal.get(java.util.Calendar.DAY_OF_WEEK) - 1;
+        int maxDays = cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH);
+
+        for (int i = 0; i < 42; i++) {
+            if (i >= startDay && i < startDay + maxDays) {
+                dayButtons[i].setText(String.valueOf(i - startDay + 1));
+                dayButtons[i].setEnabled(true);
+            } else {
+                dayButtons[i].setText("");
+                dayButtons[i].setEnabled(false);
+                dayButtons[i].setBackground(BG_COLOR);
+            }
+        }
+    }
+
+    public String getSelectedDate() {
+        return selectedDate;
+    }
+}
+
 // Main JFrame Class
 public class project extends JFrame {
     // Theme Colors
@@ -356,6 +507,8 @@ public class project extends JFrame {
     private JTextField txtPhone;
     private JTextField txtSource;
     private JTextField txtDestination;
+    private JTextField dateTravel;
+    private JTextField dateReturn;
     private JComboBox<String> comboTransport;
 
     // Payment Form Controls
@@ -386,6 +539,8 @@ public class project extends JFrame {
     private JLabel lblTicketTime;
     private JLabel lblTicketPrice;
     private JLabel lblTicketDate;
+    private JLabel lblTicketTravelDate;
+    private JLabel lblTicketReturnDate;
     private JLabel lblTicketPaymentInfo;
 
     public project() {
@@ -463,20 +618,17 @@ public class project extends JFrame {
         footerPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
         footerPanel.setPreferredSize(new Dimension(800, 60));
 
-        JLabel creditsTitle = new JLabel("OOP LAB PROJECT DEVELOPED BY:", JLabel.CENTER);
-        creditsTitle.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JLabel creditsTitle = new JLabel("OBJECT ORIENTED PROGRAMMING PROJECT", JLabel.CENTER);
+        JLabel creditsTitlee = new JLabel("\nBUILD USING JAVA + GUI", JLabel.CENTER);
+        creditsTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         creditsTitle.setForeground(COLOR_MUTED);
+        creditsTitlee.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        creditsTitlee.setForeground(COLOR_MUTED);
 
-        JLabel creditsNames = new JLabel(
-                "ANUM SAJID (SE-241043)   \u2022   MUHAMMAD REZA (SE-241014)   \u2022   MARIAM FATIMA (SE-241015)",
-                JLabel.CENTER);
-        creditsNames.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        creditsNames.setForeground(COLOR_ACCENT);
-
-        JPanel footerTextGrid = new JPanel(new GridLayout(2, 1, 2, 2));
+        JPanel footerTextGrid = new JPanel(new GridLayout(2, 2, 2, 2));
         footerTextGrid.setBackground(COLOR_CARD);
         footerTextGrid.add(creditsTitle);
-        footerTextGrid.add(creditsNames);
+        footerTextGrid.add(creditsTitlee);
 
         footerPanel.add(footerTextGrid, BorderLayout.CENTER);
 
@@ -560,7 +712,7 @@ public class project extends JFrame {
         btnBack.addActionListener(e -> cardLayout.show(mainContainer, "Welcome"));
         topPanel.add(btnBack, BorderLayout.WEST);
 
-        JLabel bookingHeaderLabel = new JLabel("PASSENGER DETAILS & PAYMENT", JLabel.RIGHT);
+        JLabel bookingHeaderLabel = new JLabel("PASSENGER DETAILS & PAYMENT", JLabel.CENTER);
         bookingHeaderLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         bookingHeaderLabel.setForeground(COLOR_TEXT);
         topPanel.add(bookingHeaderLabel, BorderLayout.EAST);
@@ -603,6 +755,37 @@ public class project extends JFrame {
         styleTextField(txtSource, "Departure city");
         txtDestination = new JTextField();
         styleTextField(txtDestination, "Destination city");
+        dateTravel = new JTextField("Select Travel Date...");
+        dateTravel.setEditable(false);
+        dateTravel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        styleTextField(dateTravel, "");
+        dateTravel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                ModernDatePicker picker = new ModernDatePicker(project.this);
+                picker.setVisible(true);
+                String date = picker.getSelectedDate();
+                if (!date.isEmpty()) {
+                    dateTravel.setText(date);
+                }
+            }
+        });
+
+        dateReturn = new JTextField("Select Return Date (Optional)...");
+        dateReturn.setEditable(false);
+        dateReturn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        styleTextField(dateReturn, "");
+        dateReturn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                ModernDatePicker picker = new ModernDatePicker(project.this);
+                picker.setVisible(true);
+                String date = picker.getSelectedDate();
+                if (!date.isEmpty()) {
+                    dateReturn.setText(date);
+                }
+            }
+        });
 
         comboTransport = new JComboBox<>();
         styleComboBox(comboTransport);
@@ -617,7 +800,15 @@ public class project extends JFrame {
         addFormRow(leftPanel, gbc, 4, "Phone Number:", txtPhone);
         addFormRow(leftPanel, gbc, 5, "Departure From:", txtSource);
         addFormRow(leftPanel, gbc, 6, "Destination To:", txtDestination);
-        addFormRow(leftPanel, gbc, 7, "Select Transport:", comboTransport);
+        addFormRow(leftPanel, gbc, 7, "Travel Date:", dateTravel);
+        addFormRow(leftPanel, gbc, 8, "Return Date:", dateReturn);
+        addFormRow(leftPanel, gbc, 9, "Select Transport:", comboTransport);
+
+        gbc.gridx = 0;
+        gbc.gridy = 10;
+        gbc.gridwidth = 2;
+        gbc.weighty = 1.0;
+        leftPanel.add(new JLabel(), gbc);
 
         centerGrid.add(leftPanel);
 
@@ -636,7 +827,7 @@ public class project extends JFrame {
         lblSectionPay.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblSectionPay.setForeground(COLOR_ACCENT);
         gbcR.gridy = 0;
-        gbcR.insets = new Insets(0, 10, 15, 10);
+        gbcR.insets = new Insets(0, 10, 20, 10);
         rightPanel.add(lblSectionPay, gbcR);
 
         // Payment Method Radio Selection
@@ -661,7 +852,7 @@ public class project extends JFrame {
         radioContainer.add(radioWallet);
 
         gbcR.gridy = 1;
-        gbcR.insets = new Insets(0, 10, 15, 10);
+        gbcR.insets = new Insets(0, 10, 20, 10);
         rightPanel.add(radioContainer, gbcR);
 
         // Interactive Fields Switching Container (CardLayout)
@@ -710,7 +901,7 @@ public class project extends JFrame {
         paymentSwitchPanel.add(walletForm, "Wallet");
 
         gbcR.gridy = 2;
-        gbcR.insets = new Insets(0, 0, 15, 0);
+        gbcR.insets = new Insets(10, 10, 20, 10);
         rightPanel.add(paymentSwitchPanel, gbcR);
 
         // Dynamic Payment method layout toggles
@@ -751,9 +942,20 @@ public class project extends JFrame {
         gbcR.insets = new Insets(5, 10, 0, 10);
         rightPanel.add(checkoutBox, gbcR);
 
+        gbcR.gridy = 4;
+        gbcR.weighty = 1.0;
+        rightPanel.add(new JLabel(), gbcR);
+
         centerGrid.add(rightPanel);
 
-        mainPanel.add(centerGrid, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(centerGrid);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setBackground(COLOR_BG);
+        scrollPane.getViewport().setBackground(COLOR_BG);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
         return mainPanel;
     }
 
@@ -842,21 +1044,35 @@ public class project extends JFrame {
         lblTicketRoute.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTicketRoute.setForeground(COLOR_SUCCESS);
         gbcL.gridy = 5;
-        gbcL.insets = new Insets(5, 0, 15, 0);
+        gbcL.insets = new Insets(5, 0, 5, 0);
         leftTicketPanel.add(lblTicketRoute, gbcL);
+
+        lblTicketTravelDate = new JLabel("Date of Travel: 01-01-2026");
+        lblTicketTravelDate.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblTicketTravelDate.setForeground(COLOR_ACCENT);
+        gbcL.gridy = 6;
+        gbcL.insets = new Insets(0, 0, 6, 0);
+        leftTicketPanel.add(lblTicketTravelDate, gbcL);
+
+        lblTicketReturnDate = new JLabel("Date of Return: N/A");
+        lblTicketReturnDate.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblTicketReturnDate.setForeground(COLOR_ACCENT);
+        gbcL.gridy = 7;
+        gbcL.insets = new Insets(0, 0, 15, 0);
+        leftTicketPanel.add(lblTicketReturnDate, gbcL);
 
         // Service & Timing
         lblTicketService = new JLabel("Service Carrier: PIA - Flight A101");
         lblTicketService.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblTicketService.setForeground(COLOR_TEXT);
-        gbcL.gridy = 6;
+        gbcL.gridy = 8;
         gbcL.insets = new Insets(0, 0, 6, 0);
         leftTicketPanel.add(lblTicketService, gbcL);
 
         lblTicketTime = new JLabel("Scheduled Time: 13:40");
         lblTicketTime.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         lblTicketTime.setForeground(COLOR_MUTED);
-        gbcL.gridy = 7;
+        gbcL.gridy = 9;
         gbcL.insets = new Insets(0, 0, 0, 0);
         leftTicketPanel.add(lblTicketTime, gbcL);
 
@@ -1111,6 +1327,13 @@ public class project extends JFrame {
         lblTicketAge.setText("Passenger Age:   " + currentBooking.age + " Years");
         lblTicketRoute.setText(
                 currentBooking.source.toUpperCase() + "   \u2794   " + currentBooking.destination.toUpperCase());
+        lblTicketTravelDate.setText("Date of Travel: " + currentBooking.travelDate);
+
+        if (!currentBooking.returnDate.equals("N/A")) {
+            lblTicketReturnDate.setText("Date of Return: " + currentBooking.returnDate);
+        } else {
+            lblTicketReturnDate.setText("");
+        }
 
         String serviceDetails = "";
         if (currentBooking instanceof airline) {
@@ -1142,6 +1365,10 @@ public class project extends JFrame {
         obj.phone = txtPhone.getText().trim();
         obj.source = txtSource.getText().trim();
         obj.destination = txtDestination.getText().trim();
+        obj.travelDate = dateTravel.getText().trim();
+
+        String retDate = dateReturn.getText().trim();
+        obj.returnDate = retDate.contains("Select Return Date") ? "N/A" : retDate;
 
         if (radioCard.isSelected()) {
             obj.choice = 1;
@@ -1190,6 +1417,10 @@ public class project extends JFrame {
         if (txtDestination.getText().trim().isEmpty()) {
             return validationAlert("Please specify the travel destination.");
         }
+        String dt = dateTravel.getText().trim();
+        if (dt.isEmpty() || dt.contains("Select Travel Date")) {
+            return validationAlert("Please specify the travel date.");
+        }
 
         // Validate payment fields
         if (radioCard.isSelected()) {
@@ -1234,6 +1465,8 @@ public class project extends JFrame {
         txtPhone.setText("");
         txtSource.setText("");
         txtDestination.setText("");
+        dateTravel.setText("Select Travel Date...");
+        dateReturn.setText("Select Return Date (Optional)...");
 
         txtCardName.setText("");
         txtCardNumber.setText("");
